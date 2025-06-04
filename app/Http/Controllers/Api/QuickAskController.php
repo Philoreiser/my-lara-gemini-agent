@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Gemini;
+use Gemini\Data\Content;
+use Gemini\Enums\Role;
 
 class QuickAskController extends Controller
 {
@@ -19,13 +21,35 @@ class QuickAskController extends Controller
         $prompt = $request->input('prompt');
         $result = $client->generativeModel(model: 'gemini-2.0-flash')->generateContent($prompt);
 
-        $message = $result->text(); // Hello! How can I assist you today?
+        $message = $result->text();
 
         return json_encode([
             'prompt' => $prompt,
             // 'MyGeminiApiKey' => env('MY_GEMINI_API_KEY'),
             'message' => $message,
         ], true);
+    }
+
+    public function chat()
+    {
+        $myApiKey = env('MY_GEMINI_API_KEY');
+        $client = Gemini::client($myApiKey);
+
+        $chat = $client
+            ->generativeModel(model: 'gemini-2.0-flash')
+            ->startChat(history: [
+                Content::parse(part: 'Explain RESTful API in short words'),
+                Content::parse(
+                    part: "A RESTful API is a way for two computer systems to communicate over the internet using standard HTTP methods (like GET, POST, PUT, DELETE) to access and manipulate resources. Think of it as a waiter taking your orders (requests) and bringing you back what you asked for (data) from the kitchen (server).  It's simple, scalable, and widely used.\n", 
+                    role: Role::MODEL
+                )
+            ]);
+
+        $response = $chat->sendMessage('Please translate your answer to Chinese');
+        echo $response->text(); 
+
+        $response = $chat->sendMessage('Please translate your answer to Traditional Chinese');
+        echo $response->text(); 
     }
 
     /**

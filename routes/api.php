@@ -11,3 +11,5 @@ Route::get('/user', function (Request $request) {
 
 // Quick Ask Gemini a question
 Route::post('/QuickAsk', QuickAskController::class);
+
+Route::post('/QuickAsk/Chat', [QuickAskController::class, 'chat']);
