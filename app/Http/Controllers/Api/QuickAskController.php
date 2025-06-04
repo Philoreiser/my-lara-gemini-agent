@@ -10,18 +10,20 @@ use Gemini;
 class QuickAskController extends Controller
 {
 
-    public function __invoke()
+    public function __invoke(Request $request)
     {
         # Reference: https://github.com/google-gemini-php/client
         $myApiKey = env('MY_GEMINI_API_KEY');
         $client = Gemini::client($myApiKey);
 
-        $result = $client->generativeModel(model: 'gemini-2.0-flash')->generateContent('Hello');
+        $prompt = $request->input('prompt');
+        $result = $client->generativeModel(model: 'gemini-2.0-flash')->generateContent($prompt);
 
         $message = $result->text(); // Hello! How can I assist you today?
 
         return json_encode([
-            'MyGeminiApiKey' => env('MY_GEMINI_API_KEY'),
+            'prompt' => $prompt,
+            // 'MyGeminiApiKey' => env('MY_GEMINI_API_KEY'),
             'message' => $message,
         ], true);
     }
